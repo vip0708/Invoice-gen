@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moopans Water Invoice Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="control-panel" aria-label="Invoice details form">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Moopans Real Estate</p>
+          <h1>Water Invoice Generator</h1>
+        </div>
+        <button id="printBtn" class="primary-btn" type="button">Print / Save PDF</button>
+      </div>
+
+      <div class="hint-card">
+        Enter the bill details on the left. The invoice preview updates instantly and prints in A4 size with the same gold / cream style as the template.
+      </div>
+
+      <form id="invoiceForm" autocomplete="off">
+        <section class="form-card">
+          <h2>Invoice Info</h2>
+          <div class="grid two">
+            <label>Invoice No
+              <input name="invoiceNo" type="text" />
+            </label>
+            <label>Invoice Date
+              <input name="invoiceDate" type="date" />
+            </label>
+            <label>Due Date
+              <input name="dueDate" type="date" />
+            </label>
+            <label>Bill Month / Area
+              <input name="billArea" type="text" placeholder="ESR" />
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card">
+          <h2>Bill To</h2>
+          <label>Customer / Tenant Name
+            <input name="billToName" type="text" />
+          </label>
+          <div class="grid two">
+            <label>Flat / Shop No
+              <input name="flatNo" type="text" />
+            </label>
+            <label>Extra Line
+              <input name="billToExtra" type="text" placeholder="Optional" />
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card">
+          <div class="section-title-row">
+            <h2>Water & Sewerage Details</h2>
+            <button id="addRowBtn" class="ghost-btn" type="button">+ Add Row</button>
+          </div>
+          <div id="rowsEditor" class="rows-editor"></div>
+        </section>
+
+        <section class="form-card">
+          <h2>Payment Summary</h2>
+          <div class="grid two">
+            <label>Previous Balance
+              <input name="previousBalance" type="number" step="0.01" min="0" />
+            </label>
+            <label>Payments
+              <input name="payments" type="number" step="0.01" min="0" />
+            </label>
+          </div>
+          <label>Total in Words
+            <input name="totalWords" type="text" placeholder="Auto-generated if empty" />
+          </label>
+        </section>
+
+        <details class="form-card">
+          <summary>Company & Bank Details</summary>
+          <div class="grid two top-space">
+            <label>Company Address Line 1
+              <input name="companyAddress1" type="text" />
+            </label>
+            <label>Company Address Line 2
+              <input name="companyAddress2" type="text" />
+            </label>
+            <label>Company Address Line 3
+              <input name="companyAddress3" type="text" />
+            </label>
+            <label>Company Phone
+              <input name="companyPhone" type="text" />
+            </label>
+            <label>Bank Name
+              <input name="bankName" type="text" />
+            </label>
+            <label>A/C No
+              <input name="accountNo" type="text" />
+            </label>
+            <label>A/C Name
+              <input name="accountName" type="text" />
+            </label>
+            <label>IBAN
+              <input name="iban" type="text" />
+            </label>
+            <label>Swift Code
+              <input name="swiftCode" type="text" />
+            </label>
+            <label>Website
+              <input name="website" type="text" />
+            </label>
+          </div>
+        </details>
+
+        <div class="actions-row">
+          <button id="saveBtn" type="button" class="ghost-btn">Save Details</button>
+          <button id="resetBtn" type="button" class="ghost-btn danger">Reset</button>
+          <button id="downloadJsonBtn" type="button" class="ghost-btn">Download JSON</button>
+          <label class="import-label">Import JSON
+            <input id="importJson" type="file" accept="application/json" hidden />
+          </label>
+        </div>
+      </form>
+    </aside>
+
+    <main class="preview-zone" aria-label="Invoice preview">
+      <div class="preview-toolbar no-print">
+        <span>Live A4 Preview</span>
+        <button id="printBtnTop" class="primary-btn small" type="button">Print / Save PDF</button>
+      </div>
+
+      <section class="invoice-paper" id="invoicePaper">
+        <header class="invoice-header">
+          <div class="company-block">
+            <img src="assets/moopans-real-estate-logo.png" alt="Moopans Real Estate" class="real-estate-logo" />
+            <div class="company-address">
+              <strong id="pCompanyAddress1"></strong><br />
+              <span id="pCompanyAddress2"></span><br />
+              <span id="pCompanyAddress3"></span><br />
+              <strong id="pCompanyPhone"></strong>
+            </div>
+          </div>
+
+          <div class="invoice-title-block">
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-meta-card">
+              <div>
+                <span>INVOICE NO</span>
+                <strong id="pInvoiceNo"></strong>
+              </div>
+              <div class="meta-divider"></div>
+              <div>
+                <span>DATE</span>
+                <strong id="pInvoiceDate"></strong>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="bill-terms-row">
+          <div class="bill-card">
+            <div class="round-icon" aria-hidden="true">👤</div>
+            <div>
+              <div class="card-label">BILL TO</div>
+              <div class="bill-name" id="pBillToName"></div>
+              <div id="pFlatNo"></div>
+              <div id="pBillArea"></div>
+              <div id="pBillToExtra"></div>
+            </div>
+          </div>
+
+          <div class="terms-card">
+            <div class="round-icon" aria-hidden="true">📄</div>
+            <div>
+              <div class="card-label">TERMS</div>
+              <div>Due Date: Before</div>
+              <strong id="pDueDate"></strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="gold-strip">WATER &amp; SEWERAGE DETAILS</div>
+
+        <div class="details-grid" id="previewDetailsGrid" aria-label="Water and sewerage details table"></div>
+
+        <div class="total-current-row">
+          <span>TOTAL CURRENT CHARGES</span>
+          <strong id="pTotalCurrentCharges"></strong>
+        </div>
+
+        <div class="lower-layout">
+          <div class="summary-bank-stack">
+            <section class="summary-box">
+              <div class="box-title">PAYMENT SUMMERY</div>
+              <div class="summary-body">
+                <div><span>Previous Balance</span><strong id="pPreviousBalance"></strong><em>AED</em></div>
+                <div><span>Current Charges</span><strong id="pCurrentCharges"></strong><em>AED</em></div>
+                <div><span>Payments</span><strong id="pPayments"></strong><em>AED</em></div>
+                <div class="dash-line"></div>
+                <div class="total-due-line"><span>TOTAL DUE</span><strong id="pTotalDue"></strong><em>AED</em></div>
+              </div>
+              <div class="words-line">Total in words: <strong id="pTotalWords"></strong></div>
+            </section>
+
+            <section class="bank-box">
+              <div class="bank-title-row">
+                <span class="round-icon small-icon" aria-hidden="true">🏦</span>
+                <strong>BANK DETAILS</strong>
+              </div>
+              <div class="bank-lines">
+                <div>Bank Name: <strong id="pBankName"></strong></div>
+                <div>A/C No: <strong id="pAccountNo"></strong></div>
+                <div>A/C Name: <strong id="pAccountName"></strong></div>
+                <div>IBAN: <strong id="pIban"></strong></div>
+                <div>Swift Code: <strong id="pSwiftCode"></strong></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="footer-logo-block">
+            <img src="assets/moopans-group-logo.png" alt="Moopans Group of Companies" class="group-logo" />
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
